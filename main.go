@@ -24,6 +24,9 @@ func main() {
 	userRoutes := r.Group("api/user")
 	{
 		userRoutes.GET("/", userController.All)
+		// userRoutes.POST("/", userController.Insert)
+		// userRoutes.PUT("/", userController.Update)
+		userRoutes.DELETE("/:id", userController.Delete)
 	}
 
 	r.Run()

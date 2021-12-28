@@ -8,8 +8,10 @@ import (
 //UserService is a contract.....
 type UserService interface {
 	All() []entity.User
+	Delete(b entity.User)
 	// Update(user dto.UserUpdateDTO) entity.User
 	// Profile(userID string) entity.User
+	FindByID(userID int64) entity.User
 }
 
 type userService struct {
@@ -26,6 +28,19 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 func (service *userService) All() []entity.User {
 	return service.userRepository.AllUser()
 }
+
+func (service *userService) Delete(b entity.User) {
+	service.userRepository.DeleteUser(b)
+}
+
+func (service *userService) FindByID(userID int64) entity.User {
+	return service.userRepository.FindUserID(userID)
+}
+
+
+// func (service *bookService) Delete(b entity.Book) {
+// 	service.bookRepository.DeleteBook(b)
+// }
 
 
 

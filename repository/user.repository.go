@@ -14,6 +14,8 @@ type UserRepository interface {
 	// FindByEmail(email string) entity.User
 	// ProfileUser(userID string) entity.User
 	AllUser() []entity.User
+	DeleteUser(b entity.User)
+	FindUserID(userID int64) entity.User
 }
 
 type userConnection struct {
@@ -32,6 +34,16 @@ func (db *userConnection) AllUser() []entity.User {
 	var users []entity.User
 	db.connection.Find(&users)
 	return users
+}
+
+func (db *userConnection) DeleteUser(b entity.User) {
+	db.connection.Delete(&b)
+}
+
+func (db *userConnection) FindUserID(userID int64) entity.User {
+	var user entity.User
+	db.connection.Find(&user, userID)
+	return user
 }
 
 // func (db *userConnection) InsertUser(user entity.User) entity.User {
