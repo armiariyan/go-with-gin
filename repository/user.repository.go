@@ -1,20 +1,24 @@
 package repository
 
 import (
+	"log"
+
 	"gitlab.com/armiariyan/intern_golang/entity"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 //UserRepository is contract what userRepository can do to db
 type UserRepository interface {
-	// InsertUser(user entity.User) entity.User
+	
 	// UpdateUser(user entity.User) entity.User
 	// VerifyCredential(email string, password string) interface{}
 	// IsDuplicateEmail(email string) (tx *gorm.DB)
 	// FindByEmail(email string) entity.User
 	// ProfileUser(userID string) entity.User
+	InsertUser(user entity.User) entity.User
 	AllUser() []entity.User
-	DeleteUser(b entity.User)
+	DeleteUser(user entity.User)
 	FindUserID(userID int64) entity.User
 }
 
@@ -29,6 +33,11 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	}
 }
 
+func (db *userConnection) InsertUser(user entity.User) entity.User {
+	db.connection.Create(&user)
+	// db.connection.Preload("User").Find(&b)
+	return user
+}
 
 func (db *userConnection) AllUser() []entity.User {
 	var users []entity.User
@@ -36,8 +45,8 @@ func (db *userConnection) AllUser() []entity.User {
 	return users
 }
 
-func (db *userConnection) DeleteUser(b entity.User) {
-	db.connection.Delete(&b)
+func (db *userConnection) DeleteUser(user entity.User) {
+	db.connection.Delete(&user)
 }
 
 func (db *userConnection) FindUserID(userID int64) entity.User {
@@ -46,11 +55,16 @@ func (db *userConnection) FindUserID(userID int64) entity.User {
 	return user
 }
 
-// func (db *userConnection) InsertUser(user entity.User) entity.User {
-// 	user.Password = hashAndSalt([]byte(user.Password))
-// 	db.connection.Save(&user)
-// 	return user
-// }
+
+
+func hashAndSalt(pwd []byte) string {
+	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.MinCost)
+	if err != nil {
+		log.Println(err)
+		panic("Failed to hash a password")
+	}
+	return string(hash)
+}
 
 // func (db *userConnection) UpdateUser(user entity.User) entity.User {
 // 	if user.Password != "" {
@@ -89,13 +103,4 @@ func (db *userConnection) FindUserID(userID int64) entity.User {
 // 	var user entity.User
 // 	db.connection.Preload("Books").Preload("Books.User").Find(&user, userID)
 // 	return user
-// }
-
-// func hashAndSalt(pwd []byte) string {
-// 	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.MinCost)
-// 	if err != nil {
-// 		log.Println(err)
-// 		panic("Failed to hash a password")
-// 	}
-// 	return string(hash)
 // }

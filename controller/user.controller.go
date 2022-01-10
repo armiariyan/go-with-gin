@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gitlab.com/armiariyan/intern_golang/dto"
 	"gitlab.com/armiariyan/intern_golang/entity"
 	"gitlab.com/armiariyan/intern_golang/helper"
 	"gitlab.com/armiariyan/intern_golang/service"
@@ -14,7 +15,7 @@ import (
 type UserController interface {
 	All(context *gin.Context)
 	// FindByID(context *gin.Context)
-	// Insert(context *gin.Context)
+	Insert(context *gin.Context)
 	// Update(context *gin.Context)
 	Delete(context *gin.Context)
 }
@@ -57,16 +58,11 @@ func (c *userController) Delete(context *gin.Context) {
 		context.JSON(http.StatusNotFound, res)
 	} else {
 		user.ID = id
+		// Delete user
 		c.userService.Delete(user)
 		res := helper.BuildResponse(true, "Deleted", helper.EmptyObj{})
 		context.JSON(http.StatusOK, res)
 	}
-
-
-	
-	
-
-
 	// authHeader := context.GetHeader("Authorization")
 	// token, errToken := c.jwtService.ValidateToken(authHeader)
 	// if errToken != nil {
@@ -81,6 +77,45 @@ func (c *userController) Delete(context *gin.Context) {
 	// } else {
 	// 	response := helper.BuildErrorResponse("You dont have permission", "You are not the owner", helper.EmptyObj{})
 	// 	context.JSON(http.StatusForbidden, response)
+	// }
+}
+
+func (c *userController) Insert(context *gin.Context) {
+	var userCreateDTO dto.UserCreateDTO
+	errDTO := context.ShouldBind(&userCreateDTO)
+	// fmt.Println("errDTO", errDTO)
+	// fmt.Println("==========")
+	
+	if errDTO != nil {
+			res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
+			context.JSON(http.StatusBadRequest, res)
+	} else {
+		// fmt.Println("Data sebelum insert", userCreateDTO)
+		result := c.userService.Insert(userCreateDTO)
+		// os.Exit(1)
+		response := helper.BuildResponse(true, "OK", result)
+		context.JSON(http.StatusCreated, response)
+	}
+	
+
+	// if errDTO != nil {
+	// 	res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
+	// 	context.JSON(http.StatusBadRequest, res)
+	// } else {
+		// authHeader := context.GetHeader("Authorization")
+		// userID := c.getUserIDByToken(authHeader)
+		// convertedUserID, err := strconv.ParseUint(userID, 10, 64)
+		// if err == nil {
+		// 	bookCreateDTO.UserID = convertedUserID
+		// }
+		// fmt.Println("==================")
+		// result := c.userService.Insert(userCreateDTO)
+		// fmt.Println(result)
+		// fmt.Println("==================")
+		// response := helper.BuildResponse(true, "OK", result)
+		// fmt.Println(response)
+		// os.Exit(1)
+		// context.JSON(http.StatusCreated, response)
 	// }
 }
 
