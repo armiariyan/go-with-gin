@@ -11,7 +11,6 @@ import (
 //UserRepository is contract what userRepository can do to db
 type UserRepository interface {
 	
-	// UpdateUser(user entity.User) entity.User
 	// VerifyCredential(email string, password string) interface{}
 	// IsDuplicateEmail(email string) (tx *gorm.DB)
 	// FindByEmail(email string) entity.User
@@ -19,6 +18,7 @@ type UserRepository interface {
 	InsertUser(user entity.User) entity.User
 	AllUser() []entity.User
 	DeleteUser(user entity.User)
+	UpdateUser(user entity.User) entity.User
 	FindUserID(userID int64) entity.User
 }
 
@@ -56,8 +56,21 @@ func (db *userConnection) FindUserID(userID int64) entity.User {
 }
 
 
+func (db *userConnection) UpdateUser(user entity.User) entity.User {
+	// For hash new password
+	// if user.Password != "" {
+	// 	user.Password = hashAndSalt([]byte(user.Password))
+	// } else {
+	// 	var tempUser entity.User
+	// 	db.connection.Find(&tempUser, user.ID)
+	// 	user.Password = tempUser.Password
+	// }
+	
+	db.connection.Updates(&user)
+	return user
+}
 
-func hashAndSalt(pwd []byte) string {
+func hashAndSalt(pwd []byte) string {	
 	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.MinCost)
 	if err != nil {
 		log.Println(err)
@@ -66,18 +79,6 @@ func hashAndSalt(pwd []byte) string {
 	return string(hash)
 }
 
-// func (db *userConnection) UpdateUser(user entity.User) entity.User {
-// 	if user.Password != "" {
-// 		user.Password = hashAndSalt([]byte(user.Password))
-// 	} else {
-// 		var tempUser entity.User
-// 		db.connection.Find(&tempUser, user.ID)
-// 		user.Password = tempUser.Password
-// 	}
-
-// 	db.connection.Save(&user)
-// 	return user
-// }
 
 // func (db *userConnection) VerifyCredential(email string, password string) interface{} {
 // 	var user entity.User

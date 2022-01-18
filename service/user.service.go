@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/mashingan/smapping"
@@ -15,7 +14,7 @@ type UserService interface {
 	All() []entity.User
 	Delete(user entity.User)
 	Insert(u dto.UserCreateDTO) entity.User
-	// Update(user dto.UserUpdateDTO) entity.User
+	Update(u dto.UserUpdateDTO) entity.User
 	// Profile(userID string) entity.User
 	FindByID(userID int64) entity.User
 }
@@ -31,28 +30,21 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 	}
 }
 
+
 func (service *userService) Insert(u dto.UserCreateDTO) entity.User {
 	userToCreate := entity.User{}
-	fmt.Println("userToCreate inisiasi", userToCreate)
-	fmt.Println("==========")
 
-	// Mengisi variable userToCreate
+	// Fill variable userToCreate
 	err := smapping.FillStruct(&userToCreate, smapping.MapFields(&u))
+	
 	if err != nil {
 		log.Fatalf("Failed map %v: ", err)
 	}
-	// fmt.Println("userToCreate sblm insertuser", userToCreate)
-	// fmt.Println("==========")
+
+	// Insert data to database
 	res := service.userRepository.InsertUser(userToCreate)
-	// fmt.Println("res setelah insertuser", res)
-	// fmt.Println("==========")
-	// os.Exit(1)
-	// res := service.userRepository.InsertUser(userToCreate)
-	
 	return res
 }
-
-
 
 func (service *userService) All() []entity.User {
 	return service.userRepository.AllUser()
@@ -66,23 +58,17 @@ func (service *userService) FindByID(userID int64) entity.User {
 	return service.userRepository.FindUserID(userID)
 }
 
-
-// func (service *bookService) Delete(b entity.Book) {
-// 	service.bookRepository.DeleteBook(b)
-// }
-
-
-
-
-// func (service *userService) Update(user dto.UserUpdateDTO) entity.User {
-// 	userToUpdate := entity.User{}
-// 	err := smapping.FillStruct(&userToUpdate, smapping.MapFields(&user))
-// 	if err != nil {
-// 		log.Fatalf("Failed map %v:", err)
-// 	}
-// 	updatedUser := service.userRepository.UpdateUser(userToUpdate)
-// 	return updatedUser
-// }
+func (service *userService) Update(user dto.UserUpdateDTO) entity.User {
+	userToUpdate := entity.User{}
+	// Fill the variable
+	err := smapping.FillStruct(&userToUpdate, smapping.MapFields(&user))
+	if err != nil {
+		log.Fatalf("Failed map %v:", err)
+	}
+	// Update the variable
+	updatedUser := service.userRepository.UpdateUser(userToUpdate)
+	return updatedUser
+}
 
 // func (service *userService) Profile(userID string) entity.User {
 // 	return service.userRepository.ProfileUser(userID)

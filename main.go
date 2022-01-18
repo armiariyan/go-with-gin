@@ -14,7 +14,6 @@ var (
 	userRepository repository.UserRepository = repository.NewUserRepository(db)
 	userService    service.UserService       = service.NewUserService(userRepository)
 	userController controller.UserController = controller.NewUserController(userService)
-
 )
 
 func main() {
@@ -25,7 +24,7 @@ func main() {
 	{
 		userRoutes.GET("/", userController.All)
 		userRoutes.POST("/", userController.Insert)
-		// userRoutes.PUT("/", userController.Update)
+		userRoutes.PUT("/:id", userController.Update)
 		userRoutes.DELETE("/:id", userController.Delete)
 	}
 

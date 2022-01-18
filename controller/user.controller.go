@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -16,7 +17,7 @@ type UserController interface {
 	All(context *gin.Context)
 	// FindByID(context *gin.Context)
 	Insert(context *gin.Context)
-	// Update(context *gin.Context)
+	Update(context *gin.Context)
 	Delete(context *gin.Context)
 }
 
@@ -82,141 +83,52 @@ func (c *userController) Delete(context *gin.Context) {
 
 func (c *userController) Insert(context *gin.Context) {
 	var userCreateDTO dto.UserCreateDTO
+
 	errDTO := context.ShouldBind(&userCreateDTO)
-	// fmt.Println("errDTO", errDTO)
-	// fmt.Println("==========")
 	
 	if errDTO != nil {
-			res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
-			context.JSON(http.StatusBadRequest, res)
+		res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
+		fmt.Println("res =", res)
+		context.JSON(http.StatusBadRequest, res)
 	} else {
-		// fmt.Println("Data sebelum insert", userCreateDTO)
 		result := c.userService.Insert(userCreateDTO)
-		// os.Exit(1)
 		response := helper.BuildResponse(true, "OK", result)
 		context.JSON(http.StatusCreated, response)
 	}
-	
-
-	// if errDTO != nil {
-	// 	res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
-	// 	context.JSON(http.StatusBadRequest, res)
-	// } else {
-		// authHeader := context.GetHeader("Authorization")
-		// userID := c.getUserIDByToken(authHeader)
-		// convertedUserID, err := strconv.ParseUint(userID, 10, 64)
-		// if err == nil {
-		// 	bookCreateDTO.UserID = convertedUserID
-		// }
-		// fmt.Println("==================")
-		// result := c.userService.Insert(userCreateDTO)
-		// fmt.Println(result)
-		// fmt.Println("==================")
-		// response := helper.BuildResponse(true, "OK", result)
-		// fmt.Println(response)
-		// os.Exit(1)
-		// context.JSON(http.StatusCreated, response)
-	// }
 }
 
-// func (c *bookController) FindByID(context *gin.Context) {
-// 	id, err := strconv.ParseUint(context.Param("id"), 0, 0)
-// 	if err != nil {
-// 		res := helper.BuildErrorResponse("No param id was found", err.Error(), helper.EmptyObj{})
-// 		context.AbortWithStatusJSON(http.StatusBadRequest, res)
-// 		return
-// 	}
 
-// 	var book entity.Book = c.bookService.FindByID(id)
-// 	if (book == entity.Book{}) {
-// 		res := helper.BuildErrorResponse("Data not found", "No data with given id", helper.EmptyObj{})
-// 		context.JSON(http.StatusNotFound, res)
-// 	} else {
-// 		res := helper.BuildResponse(true, "OK", book)
-// 		context.JSON(http.StatusOK, res)
-// 	}
-// }
 
-// func (c *bookController) Insert(context *gin.Context) {
-// 	var bookCreateDTO dto.BookCreateDTO
-// 	errDTO := context.ShouldBind(&bookCreateDTO)
-// 	if errDTO != nil {
-// 		res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
-// 		context.JSON(http.StatusBadRequest, res)
-// 	} else {
-// 		authHeader := context.GetHeader("Authorization")
-// 		userID := c.getUserIDByToken(authHeader)
-// 		convertedUserID, err := strconv.ParseUint(userID, 10, 64)
-// 		if err == nil {
-// 			bookCreateDTO.UserID = convertedUserID
-// 		}
-// 		result := c.bookService.Insert(bookCreateDTO)
-// 		response := helper.BuildResponse(true, "OK", result)
-// 		context.JSON(http.StatusCreated, response)
-// 	}
-// }
 
-// func (c *bookController) Update(context *gin.Context) {
-// 	var bookUpdateDTO dto.BookUpdateDTO
-// 	errDTO := context.ShouldBind(&bookUpdateDTO)
-// 	if errDTO != nil {
-// 		res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
-// 		context.JSON(http.StatusBadRequest, res)
-// 		return
-// 	}
+func (c *userController) Update(context *gin.Context) {
+	// Declare variable
+	var userUpdateDTO dto.UserUpdateDTO
+	
+	// Fill the variable
+	errDTO := context.ShouldBind(&userUpdateDTO)
+	if errDTO != nil {
+		res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
+		context.JSON(http.StatusBadRequest, res)
+		return
+	}
 
-// 	authHeader := context.GetHeader("Authorization")
-// 	token, errToken := c.jwtService.ValidateToken(authHeader)
-// 	if errToken != nil {
-// 		panic(errToken.Error())
-// 	}
-// 	claims := token.Claims.(jwt.MapClaims)
-// 	userID := fmt.Sprintf("%v", claims["user_id"])
-// 	if c.bookService.IsAllowedToEdit(userID, bookUpdateDTO.ID) {
-// 		id, errID := strconv.ParseUint(userID, 10, 64)
-// 		if errID == nil {
-// 			bookUpdateDTO.UserID = id
-// 		}
-// 		result := c.bookService.Update(bookUpdateDTO)
-// 		response := helper.BuildResponse(true, "OK", result)
-// 		context.JSON(http.StatusOK, response)
-// 	} else {
-// 		response := helper.BuildErrorResponse("You dont have permission", "You are not the owner", helper.EmptyObj{})
-// 		context.JSON(http.StatusForbidden, response)
-// 	}
-// }
+	// Take id from url parameter and convert the data type from string to int
+	intParam, err_id := strconv.ParseInt(context.Param("id"), 0, 64)
+	if err_id == nil {
+		userUpdateDTO.ID = intParam
+	}
 
-// func (c *bookController) Delete(context *gin.Context) {
-// 	var book entity.Book
-// 	id, err := strconv.ParseUint(context.Param("id"), 0, 0)
-// 	if err != nil {
-// 		response := helper.BuildErrorResponse("Failed tou get id", "No param id were found", helper.EmptyObj{})
-// 		context.JSON(http.StatusBadRequest, response)
-// 	}
-// 	book.ID = id
-// 	authHeader := context.GetHeader("Authorization")
-// 	token, errToken := c.jwtService.ValidateToken(authHeader)
-// 	if errToken != nil {
-// 		panic(errToken.Error())
-// 	}
-// 	claims := token.Claims.(jwt.MapClaims)
-// 	userID := fmt.Sprintf("%v", claims["user_id"])
-// 	if c.bookService.IsAllowedToEdit(userID, book.ID) {
-// 		c.bookService.Delete(book)
-// 		res := helper.BuildResponse(true, "Deleted", helper.EmptyObj{})
-// 		context.JSON(http.StatusOK, res)
-// 	} else {
-// 		response := helper.BuildErrorResponse("You dont have permission", "You are not the owner", helper.EmptyObj{})
-// 		context.JSON(http.StatusForbidden, response)
-// 	}
-// }
+	// fmt.Println(userUpdateDTO.ID)
+	// fmt.Println(userUpdateDTO.First_name)
+	// fmt.Println(userUpdateDTO.Last_name)
+	// fmt.Println(userUpdateDTO.Password)
+	// fmt.Println(userUpdateDTO.Type)
+	// fmt.Println(userUpdateDTO.Username)
+	// fmt.Println(userUpdateDTO.Id_number)
+	// os.Exit(1)
 
-// func (c *bookController) getUserIDByToken(token string) string {
-// 	aToken, err := c.jwtService.ValidateToken(token)
-// 	if err != nil {
-// 		panic(err.Error())
-// 	}
-// 	claims := aToken.Claims.(jwt.MapClaims)
-// 	id := fmt.Sprintf("%v", claims["user_id"])
-// 	return id
-// }
+	result := c.userService.Update(userUpdateDTO)
+	response := helper.BuildResponse(true, "OK", result)
+	context.JSON(http.StatusOK, response)
+
+}
