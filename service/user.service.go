@@ -7,6 +7,7 @@ import (
 	"gitlab.com/armiariyan/intern_golang/dto"
 	"gitlab.com/armiariyan/intern_golang/entity"
 	"gitlab.com/armiariyan/intern_golang/repository"
+	"golang.org/x/crypto/bcrypt"
 )
 
 //UserService is a contract.....
@@ -17,6 +18,7 @@ type UserService interface {
 	Update(u dto.UserUpdateDTO) entity.User
 	// Profile(userID string) entity.User
 	FindByID(userID int64) entity.User
+	IsDuplicateEmail(email string) bool
 }
 
 type userService struct {
@@ -39,6 +41,7 @@ func (service *userService) Insert(u dto.UserCreateDTO) entity.User {
 	
 	if err != nil {
 		log.Fatalf("Failed map %v: ", err)
+
 	}
 
 	// Insert data to database
@@ -69,6 +72,22 @@ func (service *userService) Update(user dto.UserUpdateDTO) entity.User {
 	updatedUser := service.userRepository.UpdateUser(userToUpdate)
 	return updatedUser
 }
+
+func comparePassword(hashedPwd string, plainPassword []byte) bool {
+	byteHash := []byte(hashedPwd)
+	err := bcrypt.CompareHashAndPassword(byteHash, plainPassword)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	return true
+}
+
+func (service *userService) IsDuplicateEmail(email string) bool {
+	res := service.userRepository.IsDuplicateEmail(email)
+	return !(res.Error == nil)
+}
+
 
 // func (service *userService) Profile(userID string) entity.User {
 // 	return service.userRepository.ProfileUser(userID)

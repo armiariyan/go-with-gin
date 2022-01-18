@@ -84,6 +84,7 @@ func (c *userController) Delete(context *gin.Context) {
 func (c *userController) Insert(context *gin.Context) {
 	var userCreateDTO dto.UserCreateDTO
 
+	// fill variablle userCreateDTO
 	errDTO := context.ShouldBind(&userCreateDTO)
 	
 	if errDTO != nil {
@@ -91,14 +92,28 @@ func (c *userController) Insert(context *gin.Context) {
 		fmt.Println("res =", res)
 		context.JSON(http.StatusBadRequest, res)
 	} else {
-		result := c.userService.Insert(userCreateDTO)
-		response := helper.BuildResponse(true, "OK", result)
-		context.JSON(http.StatusCreated, response)
+		if !c.userService.IsDuplicateEmail(userCreateDTO.Email) {
+			response := helper.BuildErrorResponse("Failed to process request", "Duplicate email", helper.EmptyObj{})
+			context.JSON(http.StatusConflict, response)
+		} else {
+			// Validate password should 1 Uppercase, 2 Numbers and 1 Symbol
+			// password := userCreateDTO.Password
+			// var regex, _ = regexp.Compile(``)
+	
+			result := c.userService.Insert(userCreateDTO)
+			// token := c.jwtService.GenerateToken(strconv.FormatUint(createdUser.ID, 10))
+			// createdUser.Token = token
+			response := helper.BuildResponse(true, "OK!", result)
+			context.JSON(http.StatusCreated, response)
+		}
 	}
+	
+	
+
+		
+
+
 }
-
-
-
 
 func (c *userController) Update(context *gin.Context) {
 	// Declare variable

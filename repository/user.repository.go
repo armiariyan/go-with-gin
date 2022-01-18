@@ -12,7 +12,6 @@ import (
 type UserRepository interface {
 	
 	// VerifyCredential(email string, password string) interface{}
-	// IsDuplicateEmail(email string) (tx *gorm.DB)
 	// FindByEmail(email string) entity.User
 	// ProfileUser(userID string) entity.User
 	InsertUser(user entity.User) entity.User
@@ -20,6 +19,7 @@ type UserRepository interface {
 	DeleteUser(user entity.User)
 	UpdateUser(user entity.User) entity.User
 	FindUserID(userID int64) entity.User
+	IsDuplicateEmail(email string) (tx *gorm.DB)
 }
 
 type userConnection struct {
@@ -34,6 +34,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 }
 
 func (db *userConnection) InsertUser(user entity.User) entity.User {
+	user.Password = hashAndSalt([]byte(user.Password))
 	db.connection.Create(&user)
 	// db.connection.Preload("User").Find(&b)
 	return user
@@ -79,6 +80,10 @@ func hashAndSalt(pwd []byte) string {
 	return string(hash)
 }
 
+func (db *userConnection) IsDuplicateEmail(email string) (tx *gorm.DB) {
+	var user entity.User
+	return db.connection.Where("email = ?", email).Take(&user)
+}
 
 // func (db *userConnection) VerifyCredential(email string, password string) interface{} {
 // 	var user entity.User
@@ -89,10 +94,6 @@ func hashAndSalt(pwd []byte) string {
 // 	return nil
 // }
 
-// func (db *userConnection) IsDuplicateEmail(email string) (tx *gorm.DB) {
-// 	var user entity.User
-// 	return db.connection.Where("email = ?", email).Take(&user)
-// }
 
 // func (db *userConnection) FindByEmail(email string) entity.User {
 // 	var user entity.User
