@@ -7,14 +7,12 @@ import (
 	"gitlab.com/armiariyan/intern_golang/dto"
 	"gitlab.com/armiariyan/intern_golang/entity"
 	"gitlab.com/armiariyan/intern_golang/repository"
-	"golang.org/x/crypto/bcrypt"
 )
 
 //UserService is a contract.....
 type UserService interface {
 	All() []entity.User
 	Delete(user entity.User)
-	Insert(u dto.UserCreateDTO) entity.User
 	Update(u dto.UserUpdateDTO) entity.User
 	// Profile(userID string) entity.User
 	FindByID(userID int64) entity.User
@@ -32,22 +30,6 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 	}
 }
 
-
-func (service *userService) Insert(u dto.UserCreateDTO) entity.User {
-	userToCreate := entity.User{}
-
-	// Fill variable userToCreate
-	err := smapping.FillStruct(&userToCreate, smapping.MapFields(&u))
-	
-	if err != nil {
-		log.Fatalf("Failed map %v: ", err)
-
-	}
-
-	// Insert data to database
-	res := service.userRepository.InsertUser(userToCreate)
-	return res
-}
 
 func (service *userService) All() []entity.User {
 	return service.userRepository.AllUser()
@@ -71,16 +53,6 @@ func (service *userService) Update(user dto.UserUpdateDTO) entity.User {
 	// Update the variable
 	updatedUser := service.userRepository.UpdateUser(userToUpdate)
 	return updatedUser
-}
-
-func comparePassword(hashedPwd string, plainPassword []byte) bool {
-	byteHash := []byte(hashedPwd)
-	err := bcrypt.CompareHashAndPassword(byteHash, plainPassword)
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-	return true
 }
 
 func (service *userService) IsDuplicateEmail(email string) bool {

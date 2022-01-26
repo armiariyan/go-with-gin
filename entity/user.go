@@ -9,4 +9,5 @@ type User struct {
 	Last_name  string `gorm:"type:varchar(255)" json:"last_name"`
 	Id_number  string `gorm:"type:varchar(255)" json:"id_number"`
 	Type       int    `json:"type"`
+	Token      string `gorm:"-" json:"token,omitempty"`
 }
