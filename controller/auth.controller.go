@@ -19,7 +19,6 @@ type AuthController interface {
 
 type authController struct {
 	authService service.AuthService
-	userService service.UserService
 	jwtService  service.JWTService
 }
 
@@ -60,13 +59,19 @@ func (c *authController) Register(ctx *gin.Context) {
 
 	// Fill registerDTO variable
 	errDTO := ctx.ShouldBind(&registerDTO)
+	
 	if errDTO != nil {
+		
 		response := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
-	if !c.userService.IsDuplicateEmail(registerDTO.Email) {
+	// resDuplicate := c.userService.IsDuplicateEmail(registerDTO.Email)
+	// fmt.Println("resDuplicate", resDuplicate)
+	// fmt.Println("=================")
+	// os.Exit(1)
+	if !c.authService.IsDuplicateEmail(registerDTO.Email) {
 		response := helper.BuildErrorResponse("Failed to process request", "Duplicate email", helper.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
 	} else {

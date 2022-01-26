@@ -14,6 +14,7 @@ import (
 type AuthService interface {
 	VerifyCredential(email string, password string) interface{}
 	CreateUser(user dto.RegisterDTO) entity.User
+	IsDuplicateEmail(email string) bool
 }
 
 type authService struct {
@@ -54,6 +55,10 @@ func (service *authService) CreateUser(user dto.RegisterDTO) entity.User {
 	return res
 }
 
+func (service *authService) IsDuplicateEmail(email string) bool {
+	res := service.userRepository.IsDuplicateEmail(email)
+	return !(res.Error == nil)
+}
 
 func comparePassword(hashedPwd string, plainPassword []byte) bool {
 	// fmt.Println("hashedPwd =", hashedPwd)

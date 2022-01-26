@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -16,7 +15,6 @@ import (
 type UserController interface {
 	All(context *gin.Context)
 	// FindByID(context *gin.Context)
-	Insert(context *gin.Context)
 	Update(context *gin.Context)
 	Delete(context *gin.Context)
 }
@@ -81,39 +79,6 @@ func (c *userController) Delete(context *gin.Context) {
 	// }
 }
 
-func (c *userController) Insert(context *gin.Context) {
-	var userCreateDTO dto.UserCreateDTO
-
-	// fill variablle userCreateDTO
-	errDTO := context.ShouldBind(&userCreateDTO)
-	
-	if errDTO != nil {
-		res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
-		fmt.Println("res =", res)
-		context.JSON(http.StatusBadRequest, res)
-	} else {
-		if !c.userService.IsDuplicateEmail(userCreateDTO.Email) {
-			response := helper.BuildErrorResponse("Failed to process request", "Duplicate email", helper.EmptyObj{})
-			context.JSON(http.StatusConflict, response)
-		} else {
-			// Validate password should 1 Uppercase, 2 Numbers and 1 Symbol
-			// password := userCreateDTO.Password
-			// var regex, _ = regexp.Compile(``)
-	
-			result := c.userService.Insert(userCreateDTO)
-			// token := c.jwtService.GenerateToken(strconv.FormatUint(createdUser.ID, 10))
-			// createdUser.Token = token
-			response := helper.BuildResponse(true, "OK!", result)
-			context.JSON(http.StatusCreated, response)
-		}
-	}
-	
-	
-
-		
-
-
-}
 
 func (c *userController) Update(context *gin.Context) {
 	// Declare variable

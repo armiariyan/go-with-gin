@@ -16,7 +16,7 @@ type UserService interface {
 	Update(u dto.UserUpdateDTO) entity.User
 	// Profile(userID string) entity.User
 	FindByID(userID int64) entity.User
-	IsDuplicateEmail(email string) bool
+	// IsDuplicateEmail(email string) bool
 }
 
 type userService struct {
@@ -55,10 +55,12 @@ func (service *userService) Update(user dto.UserUpdateDTO) entity.User {
 	return updatedUser
 }
 
-func (service *userService) IsDuplicateEmail(email string) bool {
-	res := service.userRepository.IsDuplicateEmail(email)
-	return !(res.Error == nil)
-}
+// func (service *userService) IsDuplicateEmail(email string) bool {
+// 	fmt.Println("email in user service", email)
+// 	fmt.Println("=================")
+// 	res := service.userRepository.IsDuplicateEmail(email)
+// 	return !(res.Error == nil)
+// }
 
 
 // func (service *userService) Profile(userID string) entity.User {
