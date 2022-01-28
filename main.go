@@ -18,7 +18,7 @@ var (
 	authService    service.AuthService       = service.NewAuthService(userRepository)
 
 
-	userController controller.UserController = controller.NewUserController(userService)
+	userController controller.UserController = controller.NewUserController(userService, jwtService)
 	authController controller.AuthController = controller.NewAuthController(authService, jwtService)
 )
 
@@ -35,7 +35,6 @@ func main() {
 	userRoutes := r.Group("api/user")
 	{
 		userRoutes.GET("/", userController.All)
-		// userRoutes.POST("/", userController.Insert)
 		userRoutes.PUT("/:id", userController.Update)
 		userRoutes.DELETE("/:id", userController.Delete)
 	}

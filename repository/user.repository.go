@@ -57,16 +57,22 @@ func (db *userConnection) FindUserID(userID int64) entity.User {
 }
 
 
-func (db *userConnection) UpdateUser(user entity.User) entity.User {
+func (db *userConnection) UpdateUser(user entity.User) entity.User {	
 	// For hash new password
-	// if user.Password != "" {
-	// 	user.Password = hashAndSalt([]byte(user.Password))
-	// } else {
-	// 	var tempUser entity.User
-	// 	db.connection.Find(&tempUser, user.ID)
-	// 	user.Password = tempUser.Password
-	// }
-	
+	if user.Password != "" {
+		user.Password = hashAndSalt([]byte(user.Password))
+	} else {		
+		// Checking if record with given id exist
+		tempUser := db.FindUserID(user.ID)
+		if tempUser.ID == 0 {
+			log.Println("Record not found")
+			// Record not found, will return a zero struct
+			return tempUser
+		} else {
+			// Record exist, fill the password with the latest password
+			user.Password = tempUser.Password
+		}
+	}
 	db.connection.Updates(&user)
 	return user
 }

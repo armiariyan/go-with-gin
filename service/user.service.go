@@ -50,6 +50,7 @@ func (service *userService) Update(user dto.UserUpdateDTO) entity.User {
 	if err != nil {
 		log.Fatalf("Failed map %v:", err)
 	}
+
 	// Update the variable
 	updatedUser := service.userRepository.UpdateUser(userToUpdate)
 	return updatedUser

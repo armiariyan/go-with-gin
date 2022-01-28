@@ -4,7 +4,7 @@ package dto
 type UserUpdateDTO struct {
 	ID         int64  `json:"id" form:"id"`
 	Username   string `json:"username" form:"username" binding:"required"`
-	Password   string `json:"password" form:"password" binding:"required"`
+	Password   string `json:"password" form:"password" binding:""`
 	Email      string `json:"email" form:"email" binding:"required,email"`
 	First_name string `json:"first_name" form:"first_name" binding:"required"`
 	Last_name  string `json:"last_name" form:"last_name"`

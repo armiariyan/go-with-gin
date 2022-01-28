@@ -21,14 +21,14 @@ type UserController interface {
 
 type userController struct {
 	userService service.UserService
-	// jwtService  service.JWTService
+	jwtService  service.JWTService
 }
 
 //NewUserController create a new instances of UserController
-func NewUserController(userServ service.UserService) UserController {
+func NewUserController(userServ service.UserService, jwtServ service.JWTService) UserController {
 	return &userController{
 		userService: userServ,
-		// jwtService:  jwtServ,
+		jwtService:  jwtServ,
 	}
 }
 
@@ -92,23 +92,39 @@ func (c *userController) Update(context *gin.Context) {
 		return
 	}
 
-	// Take id from url parameter and convert the data type from string to int
-	intParam, err_id := strconv.ParseInt(context.Param("id"), 0, 64)
-	if err_id == nil {
-		userUpdateDTO.ID = intParam
+	// Validate token step
+	// Take Header Named Authorization
+	authHeader := context.GetHeader("Authorization")
+	// Validate token
+	_, errToken := c.jwtService.ValidateToken(authHeader)
+	// If there is error, show it
+	if errToken != nil {
+		response := helper.BuildErrorResponse("Token Error!", errToken.Error(), helper.EmptyObj{})
+		context.JSON(http.StatusConflict, response)
+		return
 	}
 
-	// fmt.Println(userUpdateDTO.ID)
-	// fmt.Println(userUpdateDTO.First_name)
-	// fmt.Println(userUpdateDTO.Last_name)
-	// fmt.Println(userUpdateDTO.Password)
-	// fmt.Println(userUpdateDTO.Type)
-	// fmt.Println(userUpdateDTO.Username)
-	// fmt.Println(userUpdateDTO.Id_number)
-	// os.Exit(1)
+	// claims := token.Claims.(jwt.MapClaims)
+	// fmt.Println("token before claims=",claims)
+	// fmt.Println("claims=",claims)
 
+	// Take id from url parameter and convert the data type from string to int
+	intParam, err_id := strconv.ParseInt(context.Param("id"), 0, 64)
+	if err_id != nil {
+		response := helper.BuildErrorResponse("ID Error!", err_id.Error(), helper.EmptyObj{})
+		context.JSON(http.StatusConflict, response)
+		return
+	}
+	
+	userUpdateDTO.ID = intParam
 	result := c.userService.Update(userUpdateDTO)
-	response := helper.BuildResponse(true, "OK", result)
-	context.JSON(http.StatusOK, response)
+	if result.ID == 0 { 
+		response := helper.BuildErrorResponse("Failed to proccess request", "Record with given ID not found", helper.EmptyObj{})
+		context.JSON(http.StatusConflict, response)
+	} else {
+		response := helper.BuildResponse(true, "OK", result)
+		context.JSON(http.StatusOK, response)
+	}
+	
 
 }
