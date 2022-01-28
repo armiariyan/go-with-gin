@@ -62,16 +62,8 @@ func (db *userConnection) UpdateUser(user entity.User) entity.User {
 	if user.Password != "" {
 		user.Password = hashAndSalt([]byte(user.Password))
 	} else {		
-		// Checking if record with given id exist
 		tempUser := db.FindUserID(user.ID)
-		if tempUser.ID == 0 {
-			log.Println("Record not found")
-			// Record not found, will return a zero struct
-			return tempUser
-		} else {
-			// Record exist, fill the password with the latest password
-			user.Password = tempUser.Password
-		}
+		user.Password = tempUser.Password
 	}
 	db.connection.Updates(&user)
 	return user

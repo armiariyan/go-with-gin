@@ -39,44 +39,39 @@ func (c *userController) All(context *gin.Context) {
 }
 
 func (c *userController) Delete(context *gin.Context) {
-	// Konversi ?
-	id, err := strconv.ParseInt(context.Param("id"), 0, 0)
+	// Take Token from Header named Authorization
+	authHeader := context.GetHeader("Authorization")
 	
-	// Error jika parameter id tidak ada
-	if err != nil {
-		response := helper.BuildErrorResponse("Failed to get id", "No param id were found / Param id error", helper.EmptyObj{})
-		context.JSON(http.StatusBadRequest, response)
+	// Validate token
+	_, errToken := c.jwtService.ValidateToken(authHeader)
+	if errToken != nil {
+		response := helper.BuildErrorResponse("Token Error!", errToken.Error(), helper.EmptyObj{})
+		context.JSON(http.StatusConflict, response)
 		return
 	}
 
-	// Cek apakah data dengan ID tersebut ada sekaligus declare
-	var user entity.User = c.userService.FindByID(id)
-
-	if (user == entity.User{}) {
-		res := helper.BuildErrorResponse("Data not found", "No data with given id", helper.EmptyObj{})
-		context.JSON(http.StatusNotFound, res)
-	} else {
-		user.ID = id
-		// Delete user
-		c.userService.Delete(user)
-		res := helper.BuildResponse(true, "Deleted", helper.EmptyObj{})
-		context.JSON(http.StatusOK, res)
+	// Take id from url parameter and convert the data type from string to int
+	id, err_id := strconv.ParseInt(context.Param("id"), 0, 64)
+	if err_id != nil {
+		response := helper.BuildErrorResponse("ID Error!", err_id.Error(), helper.EmptyObj{})
+		context.JSON(http.StatusConflict, response)
+		return
 	}
-	// authHeader := context.GetHeader("Authorization")
-	// token, errToken := c.jwtService.ValidateToken(authHeader)
-	// if errToken != nil {
-	// 	panic(errToken.Error())
-	// }
-	// claims := token.Claims.(jwt.MapClaims)
-	// userID := fmt.Sprintf("%v", claims["user_id"])
-	// if c.bookService.IsAllowedToEdit(userID, book.ID) {
-	// 	c.bookService.Delete(book)
-	// 	res := helper.BuildResponse(true, "Deleted", helper.EmptyObj{})
-	// 	context.JSON(http.StatusOK, res)
-	// } else {
-	// 	response := helper.BuildErrorResponse("You dont have permission", "You are not the owner", helper.EmptyObj{})
-	// 	context.JSON(http.StatusForbidden, response)
-	// }
+
+	// Validate if data exist and declare variable with entity type, because the delete service parameter is entity type
+	var user entity.User = c.userService.FindByID(id)
+	if (user == entity.User{}) {
+		response := helper.BuildErrorResponse("Failed to proccess request", "Record with given ID not found", helper.EmptyObj{})
+		context.JSON(http.StatusNotFound, response)
+		return
+	}
+	
+	user.ID = id
+	c.userService.Delete(user)
+	res := helper.BuildResponse(true, "Deleted", helper.EmptyObj{})
+	context.JSON(http.StatusOK, res)
+
+	
 }
 
 
@@ -92,39 +87,37 @@ func (c *userController) Update(context *gin.Context) {
 		return
 	}
 
-	// Validate token step
-	// Take Header Named Authorization
+	// Take Token from Header named Authorization
 	authHeader := context.GetHeader("Authorization")
+
 	// Validate token
 	_, errToken := c.jwtService.ValidateToken(authHeader)
-	// If there is error, show it
 	if errToken != nil {
 		response := helper.BuildErrorResponse("Token Error!", errToken.Error(), helper.EmptyObj{})
 		context.JSON(http.StatusConflict, response)
 		return
 	}
 
-	// claims := token.Claims.(jwt.MapClaims)
-	// fmt.Println("token before claims=",claims)
-	// fmt.Println("claims=",claims)
-
 	// Take id from url parameter and convert the data type from string to int
-	intParam, err_id := strconv.ParseInt(context.Param("id"), 0, 64)
+	id, err_id := strconv.ParseInt(context.Param("id"), 0, 64)
 	if err_id != nil {
 		response := helper.BuildErrorResponse("ID Error!", err_id.Error(), helper.EmptyObj{})
 		context.JSON(http.StatusConflict, response)
 		return
 	}
-	
-	userUpdateDTO.ID = intParam
-	result := c.userService.Update(userUpdateDTO)
-	if result.ID == 0 { 
+
+	// Validate if data exist
+	result_checkId := c.userService.FindByID(id)
+	if (result_checkId == entity.User{}) {
 		response := helper.BuildErrorResponse("Failed to proccess request", "Record with given ID not found", helper.EmptyObj{})
-		context.JSON(http.StatusConflict, response)
-	} else {
-		response := helper.BuildResponse(true, "OK", result)
-		context.JSON(http.StatusOK, response)
+		context.JSON(http.StatusNotFound, response)
+		return
 	}
+	
+	userUpdateDTO.ID = id
+	result := c.userService.Update(userUpdateDTO)
+	response := helper.BuildResponse(true, "OK", result)
+	context.JSON(http.StatusOK, response)
 	
 
 }
