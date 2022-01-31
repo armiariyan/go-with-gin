@@ -5,6 +5,7 @@ import (
 	"gitlab.com/armiariyan/intern_golang/config"
 	"gitlab.com/armiariyan/intern_golang/controller"
 	"gitlab.com/armiariyan/intern_golang/repository"
+	"gitlab.com/armiariyan/intern_golang/seeder"
 	"gitlab.com/armiariyan/intern_golang/service"
 	"gorm.io/gorm"
 )
@@ -25,7 +26,7 @@ var (
 func main() {
 	defer config.CloseDatabaseConnection(db)
 	r := gin.Default()
-
+	seeder.DBSeed(db)
 	authRoutes := r.Group(("api/auth"))
 	{
 		authRoutes.POST("/login", authController.Login)
