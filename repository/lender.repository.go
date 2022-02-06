@@ -11,12 +11,10 @@ type LenderRepository interface {
 	// FindByEmail(email string) entity.User
 	// ProfileUser(userID string) entity.User
 	InsertLender(lender entity.Lender) entity.Lender
-	// AllUser() []entity.User
-	// DeleteUser(user entity.User)
-	// UpdateUser(user entity.User) entity.User
-	// FindUserID(userID int64) entity.User
-	// IsDuplicateEmail(email string) (tx *gorm.DB)
-	// VerifyCredential(email string, password string) interface{}
+	AllLenders() []entity.Lender
+	UpdateLender(lender entity.Lender) entity.Lender
+	FindLenderId(lenderID string) entity.Lender
+	DeleteLender(lender entity.Lender)
 }
 
 type lenderConnection struct {
@@ -30,12 +28,30 @@ func NewLenderRepository(db *gorm.DB) LenderRepository {
 	}
 }
 
-func (db *lenderConnection) InsertLender(lender entity.Lender) entity.Lender {
-	// fmt.Println("lender", lender)
-	db.connection.Create(&lender)
-	// fmt.Println("lender after create", lender)
-	db.connection.Preload("User").Preload("House").Find(&lender)
-	// fmt.Println("lender after preload", lender)
+func (db *lenderConnection) AllLenders() []entity.Lender {
+	var lenders []entity.Lender
+	db.connection.Preload("User").Find(&lenders)
+	return lenders
+}
 
+func (db *lenderConnection) InsertLender(lender entity.Lender) entity.Lender {
+	db.connection.Create(&lender)
+	db.connection.Preload("User").Find(&lender)
 	return lender
+}
+
+func (db *lenderConnection) FindLenderId(lenderID string) entity.Lender {
+	var lender entity.Lender
+	db.connection.First(&lender, "id_lender = ?", lenderID)
+	return lender
+}
+
+func (db *lenderConnection) UpdateLender(lender entity.Lender) entity.Lender {
+	db.connection.Updates(&lender)
+	db.connection.Preload("User").Find(&lender)
+	return lender
+}
+
+func (db *lenderConnection) DeleteLender(lender entity.Lender) {
+	db.connection.Delete(&lender)
 }
