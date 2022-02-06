@@ -50,6 +50,8 @@ func main() {
 	{
 		borrowerRoutes.GET("/", borrowerController.All)
 		borrowerRoutes.POST("/", borrowerController.Insert)
+		borrowerRoutes.PUT("/:id", borrowerController.Update)
+		// borrowerRoutes.DELETE("/:id", borrowerController.Delete)
 	}
 
 	lenderRoutes := r.Group("api/lender")

@@ -13,8 +13,8 @@ type BorrowerRepository interface {
 	InsertBorrower(borrower entity.Borrower) entity.Borrower
 	AllBorrowers() []entity.Borrower
 	// DeleteUser(user entity.User)
-	// UpdateUser(user entity.User) entity.User
-	// FindUserID(userID int64) entity.User
+	UpdateBorrower(borrower entity.Borrower) entity.Borrower
+	FindBorrowerId(borrowerID string) entity.Borrower
 	// IsDuplicateEmail(email string) (tx *gorm.DB)
 	// VerifyCredential(email string, password string) interface{}
 }
@@ -38,6 +38,18 @@ func (db *borrowerConnection) AllBorrowers() []entity.Borrower {
 
 func (db *borrowerConnection) InsertBorrower(borrower entity.Borrower) entity.Borrower {
 	db.connection.Create(&borrower)
+	db.connection.Preload("User").Preload("Opt_house").Find(&borrower)
+	return borrower
+}
+
+func (db *borrowerConnection) FindBorrowerId(borrowerID string) entity.Borrower {
+	var borrower entity.Borrower
+	db.connection.First(&borrower, "id_borrower = ?", borrowerID)
+	return borrower
+}
+
+func (db *borrowerConnection) UpdateBorrower(borrower entity.Borrower) entity.Borrower {
+	db.connection.Updates(&borrower)
 	db.connection.Preload("User").Preload("Opt_house").Find(&borrower)
 	return borrower
 }

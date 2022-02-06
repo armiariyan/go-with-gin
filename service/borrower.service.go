@@ -18,6 +18,8 @@ type BorrowerService interface {
 	CreateBorrower(borrower dto.BorrowerCreateDTO) entity.Borrower
 	CreateIdBorrower() string
 	All() []entity.Borrower
+	FindByID(borrowerID string) entity.Borrower
+	Update(b dto.BorrowerUpdateDTO) entity.Borrower
 }
 
 type borrowerService struct {
@@ -52,11 +54,6 @@ func GetCurrentTime() string {
 	return currentTime
 }
 
-func (service *borrowerService) All() []entity.Borrower {
-	return service.borrowerRepository.AllBorrowers()
-}
-
-
 func (service *borrowerService) CreateIdBorrower() string {
 	rand.Seed(time.Now().UnixNano())
 	id_borrower := "BRW-" + RandomLettersNumbers(8) + "-" + GetCurrentTime()
@@ -74,6 +71,28 @@ func (service *borrowerService) CreateBorrower(borrower dto.BorrowerCreateDTO) e
 	res := service.borrowerRepository.InsertBorrower(borrowerToCreate)
 	return res
 }
+
+func (service *borrowerService) FindByID(borrowerID string) entity.Borrower {
+	return service.borrowerRepository.FindBorrowerId(borrowerID)
+}
+
+func (service *borrowerService) All() []entity.Borrower {
+	return service.borrowerRepository.AllBorrowers()
+}
+
+func (service *borrowerService) Update(borrower dto.BorrowerUpdateDTO) entity.Borrower {
+	borrowerToUpdate := entity.Borrower{}
+	// Fill the variable
+	err := smapping.FillStruct(&borrowerToUpdate, smapping.MapFields(&borrower))
+	if err != nil {
+		log.Fatalf("Failed map %v:", err)
+	}
+
+	// Update the variable
+	updatedBorrower := service.borrowerRepository.UpdateBorrower(borrowerToUpdate)
+	return updatedBorrower
+}
+
 
 
 
