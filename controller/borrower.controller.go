@@ -8,13 +8,14 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"gitlab.com/armiariyan/intern_golang/dto"
+	"gitlab.com/armiariyan/intern_golang/entity"
 	"gitlab.com/armiariyan/intern_golang/helper"
 	"gitlab.com/armiariyan/intern_golang/service"
 )
 
-//AuthController interface is a contract what this controller can do
+//BorrowerController interface is a contract what this controller can do
 type BorrowerController interface {
-	// All(context *gin.Context)
+	All(context *gin.Context)
 	Insert(context *gin.Context)
 	// Update(context *gin.Context)
 	// Delete(context *gin.Context)
@@ -82,11 +83,11 @@ func (c *borrowerController) Insert(context *gin.Context) {
 
 }
 
-// func (c *userController) All(context *gin.Context) {
-// 	var users []entity.User = c.userService.All()
-// 	res := helper.BuildResponse(true, "OK", users)
-// 	context.JSON(http.StatusOK, res)
-// }
+func (c *borrowerController) All(context *gin.Context) {
+	var borrowers []entity.Borrower = c.borrowerService.All()
+	res := helper.BuildResponse(true, "OK", borrowers)
+	context.JSON(http.StatusOK, res)
+}
 
 // func (c *userController) Delete(context *gin.Context) {
 // 	// Take Token from Header named Authorization

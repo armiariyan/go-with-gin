@@ -11,7 +11,7 @@ type BorrowerRepository interface {
 	// FindByEmail(email string) entity.User
 	// ProfileUser(userID string) entity.User
 	InsertBorrower(borrower entity.Borrower) entity.Borrower
-	// AllUser() []entity.User
+	AllBorrowers() []entity.Borrower
 	// DeleteUser(user entity.User)
 	// UpdateUser(user entity.User) entity.User
 	// FindUserID(userID int64) entity.User
@@ -28,6 +28,12 @@ func NewBorrowerRepository(db *gorm.DB) BorrowerRepository {
 	return &borrowerConnection{
 		connection: db,
 	}
+}
+
+func (db *borrowerConnection) AllBorrowers() []entity.Borrower {
+	var borrowers []entity.Borrower
+	db.connection.Preload("User").Preload("Opt_house").Find(&borrowers)
+	return borrowers
 }
 
 func (db *borrowerConnection) InsertBorrower(borrower entity.Borrower) entity.Borrower {

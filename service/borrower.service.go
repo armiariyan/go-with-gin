@@ -17,6 +17,7 @@ type BorrowerService interface {
 	// IsDuplicateEmail(email string) bool
 	CreateBorrower(borrower dto.BorrowerCreateDTO) entity.Borrower
 	CreateIdBorrower() string
+	All() []entity.Borrower
 }
 
 type borrowerService struct {
@@ -51,6 +52,11 @@ func GetCurrentTime() string {
 	return currentTime
 }
 
+func (service *borrowerService) All() []entity.Borrower {
+	return service.borrowerRepository.AllBorrowers()
+}
+
+
 func (service *borrowerService) CreateIdBorrower() string {
 	rand.Seed(time.Now().UnixNano())
 	id_borrower := "BRW-" + RandomLettersNumbers(8) + "-" + GetCurrentTime()
@@ -68,5 +74,6 @@ func (service *borrowerService) CreateBorrower(borrower dto.BorrowerCreateDTO) e
 	res := service.borrowerRepository.InsertBorrower(borrowerToCreate)
 	return res
 }
+
 
 

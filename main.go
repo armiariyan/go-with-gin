@@ -48,6 +48,7 @@ func main() {
 
 	borrowerRoutes := r.Group("api/borrower")
 	{
+		borrowerRoutes.GET("/", borrowerController.All)
 		borrowerRoutes.POST("/", borrowerController.Insert)
 	}
 
