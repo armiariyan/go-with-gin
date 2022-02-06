@@ -30,7 +30,7 @@ func NewBorrowerService(borrowerRep repository.BorrowerRepository) BorrowerServi
 	}
 }
 
-func RandomLetters(n int) string {
+func RandomLettersNumbers(n int) string {
 	const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
     b := make([]byte, n)
@@ -46,7 +46,7 @@ func GetCurrentTime() string {
 }
 
 func (service *borrowerService) CreateIdBorrower() string {
-	id_borrower := "BRW-" + RandomLetters(8) + "-" + GetCurrentTime()
+	id_borrower := "BRW-" + RandomLettersNumbers(8) + "-" + GetCurrentTime()
 	return id_borrower
 }
 

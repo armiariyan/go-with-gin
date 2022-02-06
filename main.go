@@ -14,16 +14,19 @@ var (
 	db             		*gorm.DB                  	  = config.SetupDatabaseConnection()
 	userRepository 		repository.UserRepository 	  = repository.NewUserRepository(db)
 	borrowerRepository  repository.BorrowerRepository = repository.NewBorrowerRepository(db)
+	lenderRepository  	repository.LenderRepository	  = repository.NewLenderRepository(db)
 	
 	jwtService     		service.JWTService        	  = service.NewJWTService()
 	userService    		service.UserService       	  = service.NewUserService(userRepository)
 	authService    		service.AuthService       	  = service.NewAuthService(userRepository)
 	borrowerService    	service.BorrowerService       = service.NewBorrowerService(borrowerRepository)
+	lenderService    	service.LenderService         = service.NewLenderService(lenderRepository)
 
 
 	userController controller.UserController = controller.NewUserController(userService, jwtService)
 	authController controller.AuthController = controller.NewAuthController(authService, jwtService)
 	borrowerController controller.BorrowerController = controller.NewBorrowerController(borrowerService, jwtService)
+	lenderController controller.LenderController = controller.NewLenderController(lenderService, jwtService)
 )
 
 func main() {
@@ -46,6 +49,11 @@ func main() {
 	borrowerRoutes := r.Group("api/borrower")
 	{
 		borrowerRoutes.POST("/", borrowerController.Insert)
+	}
+
+	lenderRoutes := r.Group("api/lender")
+	{
+		lenderRoutes.POST("/", lenderController.Insert)
 	}
 	
 
