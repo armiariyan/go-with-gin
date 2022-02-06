@@ -18,7 +18,7 @@ type BorrowerController interface {
 	All(context *gin.Context)
 	Insert(context *gin.Context)
 	Update(context *gin.Context)
-	// Delete(context *gin.Context)
+	Delete(context *gin.Context)
 }
 
 type borrowerController struct {
@@ -145,44 +145,38 @@ func (c *borrowerController) Update(context *gin.Context) {
 	result := c.borrowerService.Update(borrowerUpdateDTO)
 	response := helper.BuildResponse(true, "OK", result)
 	context.JSON(http.StatusOK, response)
-	
-
 }
 
-
-// func (c *userController) Delete(context *gin.Context) {
-// 	// Take Token from Header named Authorization
-// 	authHeader := context.GetHeader("Authorization")
+func (c *borrowerController) Delete(context *gin.Context) {
+	// Take Token from Header named Authorization
+	authHeader := context.GetHeader("Authorization")
 	
-// 	// Validate token
-// 	_, errToken := c.jwtService.ValidateToken(authHeader)
-// 	if errToken != nil {
-// 		response := helper.BuildErrorResponse("Token Error!", errToken.Error(), helper.EmptyObj{})
-// 		context.JSON(http.StatusConflict, response)
-// 		return
-// 	}
+	// Validate token
+	_, errToken := c.jwtService.ValidateToken(authHeader)
+	if errToken != nil {
+		response := helper.BuildErrorResponse("Token Error!", errToken.Error(), helper.EmptyObj{})
+		context.JSON(http.StatusConflict, response)
+		return
+	}
 
-// 	// Take id from url parameter and convert the data type from string to int
-// 	id, err_id := strconv.ParseInt(context.Param("id"), 0, 64)
-// 	if err_id != nil {
-// 		response := helper.BuildErrorResponse("ID Error!", err_id.Error(), helper.EmptyObj{})
-// 		context.JSON(http.StatusConflict, response)
-// 		return
-// 	}
+	// Take id from url parameter and convert the data type from string to int
+	id := context.Param("id")
 
-// 	// Validate if data exist and declare variable with entity type, because the delete service parameter is entity type
-// 	var user entity.User = c.userService.FindByID(id)
-// 	if (user == entity.User{}) {
-// 		response := helper.BuildErrorResponse("Failed to proccess request", "Record with given ID not found", helper.EmptyObj{})
-// 		context.JSON(http.StatusNotFound, response)
-// 		return
-// 	}
+	// Validate if data exist and declare variable with entity type, because the delete service parameter is entity type
+	result_checkId := c.borrowerService.FindByID(id)
+
+	if (result_checkId == entity.Borrower{}) {
+		response := helper.BuildErrorResponse("Failed to proccess request", "Record with given ID not found", helper.EmptyObj{})
+		context.JSON(http.StatusNotFound, response)
+		return
+	}
 	
-// 	user.ID = id
-// 	c.userService.Delete(user)
-// 	res := helper.BuildResponse(true, "Deleted", helper.EmptyObj{})
-// 	context.JSON(http.StatusOK, res)
+	result_checkId.Id_borrower = id
+	c.borrowerService.Delete(result_checkId)
+	res := helper.BuildResponse(true, "Deleted", helper.EmptyObj{})
+	context.JSON(http.StatusOK, res)
 
 	
-// }
+}
+
 

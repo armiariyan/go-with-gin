@@ -13,13 +13,12 @@ import (
 
 //BorrowerService is a contract about something that this service can do
 type BorrowerService interface {
-	// VerifyCredential(email string, password string) interface{}
-	// IsDuplicateEmail(email string) bool
 	CreateBorrower(borrower dto.BorrowerCreateDTO) entity.Borrower
 	CreateIdBorrower() string
 	All() []entity.Borrower
 	FindByID(borrowerID string) entity.Borrower
 	Update(b dto.BorrowerUpdateDTO) entity.Borrower
+	Delete(borrowers entity.Borrower)
 }
 
 type borrowerService struct {
@@ -93,6 +92,9 @@ func (service *borrowerService) Update(borrower dto.BorrowerUpdateDTO) entity.Bo
 	return updatedBorrower
 }
 
+func (service *borrowerService) Delete(borrower entity.Borrower) {
+	service.borrowerRepository.DeleteBorrower(borrower)
+}
 
 
 
