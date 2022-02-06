@@ -59,7 +59,6 @@ func (c *authController) Register(ctx *gin.Context) {
 
 	// Fill registerDTO variable
 	errDTO := ctx.ShouldBind(&registerDTO)
-	
 	if errDTO != nil {
 		
 		response := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
@@ -67,10 +66,6 @@ func (c *authController) Register(ctx *gin.Context) {
 		return
 	}
 
-	// resDuplicate := c.userService.IsDuplicateEmail(registerDTO.Email)
-	// fmt.Println("resDuplicate", resDuplicate)
-	// fmt.Println("=================")
-	// os.Exit(1)
 	if !c.authService.IsDuplicateEmail(registerDTO.Email) {
 		response := helper.BuildErrorResponse("Failed to process request", "Duplicate email", helper.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)

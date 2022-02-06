@@ -27,9 +27,8 @@ func SetupDatabaseConnection() *gorm.DB {
 	if err != nil {
 		panic("Failed to create a connection to database")
 	}
-	//nanti kita isi modelnya di sini
-	db.AutoMigrate(&entity.User{}, &entity.Opt_house{},&entity.Opt_payment_frequency{},&entity.Opt_payment_type{},&entity.Opt_status{})
-	// db.AutoMigrate(&entity.Book{}, &entity.User{})
+	db.AutoMigrate(&entity.User{}, &entity.Borrower{}, &entity.Opt_house{},&entity.Opt_payment_frequency{},&entity.Opt_payment_type{},&entity.Opt_status{})
+	// db.AutoMigrate(&entity.User{}, &entity.Borrower{}, &entity.Opt_house{})
 	return db
 }
 

@@ -1,8 +1,6 @@
 package seeder
 
 import (
-	"fmt"
-
 	"gitlab.com/armiariyan/intern_golang/entity"
 	"gorm.io/gorm"
 )
@@ -106,14 +104,10 @@ func RegisterSeeders(db *gorm.DB) []Seeder {
 
 func DBSeed(db *gorm.DB) error {
 	for _, seeder := range RegisterSeeders(db) {
-		fmt.Println("seeder=", seeder)
-		fmt.Println("=======")
 		err := db.Debug().Create(seeder.Seeder).Error
 		if err != nil {
 			return err
 		}
-
-
 	}
 
 	return nil
