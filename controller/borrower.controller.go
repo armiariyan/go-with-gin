@@ -1,8 +1,11 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"gitlab.com/armiariyan/intern_golang/dto"
 	"gitlab.com/armiariyan/intern_golang/helper"
@@ -36,7 +39,7 @@ func (c *borrowerController) Insert(context *gin.Context) {
 	authHeader := context.GetHeader("Authorization")
 
 	// Validate token
-	_, errToken := c.jwtService.ValidateToken(authHeader)
+	token, errToken := c.jwtService.ValidateToken(authHeader)
 	if errToken != nil {
 		response := helper.BuildErrorResponse("Token Error!", errToken.Error(), helper.EmptyObj{})
 		context.JSON(http.StatusConflict, response)
@@ -48,15 +51,29 @@ func (c *borrowerController) Insert(context *gin.Context) {
 	// Fill registerDTO variable
 	errDTO := context.ShouldBind(&borrowerDTO)
 	if errDTO != nil {
-		response := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
-		context.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
+	response := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
+	context.AbortWithStatusJSON(http.StatusBadRequest, response)
+	return
 	}
+
+	// Get ID User from Token JWT
+	claims := token.Claims.(jwt.MapClaims)
+	fmt.Println("claims=",claims)
+	
+	id_user, err := strconv.ParseInt(fmt.Sprintf("%v", claims["user_id"]), 10, 64)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// Assign ID user
+	borrowerDTO.Id_user = id_user
+	
 
 	// Create Id_Borrower
 	id_borrower := c.borrowerService.CreateIdBorrower()
 	borrowerDTO.Id_borrower = id_borrower
 	
+	// Insert data
 	createdBorrower := c.borrowerService.CreateBorrower(borrowerDTO)
 
 	response := helper.BuildResponse(true, "OK!", createdBorrower)

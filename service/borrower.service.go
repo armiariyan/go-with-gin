@@ -31,9 +31,15 @@ func NewBorrowerService(borrowerRep repository.BorrowerRepository) BorrowerServi
 }
 
 func RandomLettersNumbers(n int) string {
+	
 	const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+	// fmt.Println("b[i]=", letterBytes[rand.Intn(len(letterBytes))])
+	// fmt.Println("rand Intn len=", rand.Intn(len(letterBytes)))
+	
     b := make([]byte, n)
+	// fmt.Println("b=", b)
+
     for i := range b {
         b[i] = letterBytes[rand.Intn(len(letterBytes))]
     }
@@ -46,6 +52,7 @@ func GetCurrentTime() string {
 }
 
 func (service *borrowerService) CreateIdBorrower() string {
+	rand.Seed(time.Now().UnixNano())
 	id_borrower := "BRW-" + RandomLettersNumbers(8) + "-" + GetCurrentTime()
 	return id_borrower
 }
@@ -57,8 +64,6 @@ func (service *borrowerService) CreateBorrower(borrower dto.BorrowerCreateDTO) e
 	if err != nil {
 		log.Fatalf("Failed map %v", err)
 	}
-	// fmt.Println("borrower=", borrower)
-	// fmt.Println("borrowerToCreate=", borrowerToCreate)
 	
 	res := service.borrowerRepository.InsertBorrower(borrowerToCreate)
 	return res

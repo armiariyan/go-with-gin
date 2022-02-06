@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"fmt"
-
 	"gitlab.com/armiariyan/intern_golang/entity"
 	"gorm.io/gorm"
 )
@@ -33,11 +31,7 @@ func NewBorrowerRepository(db *gorm.DB) BorrowerRepository {
 }
 
 func (db *borrowerConnection) InsertBorrower(borrower entity.Borrower) entity.Borrower {
-	fmt.Println("borrower", borrower)
 	db.connection.Create(&borrower)
-	fmt.Println("borrower after create", borrower)
-	db.connection.Preload("User").Preload("House").Find(&borrower)
-	fmt.Println("borrower after preload", borrower)
-
+	db.connection.Preload("User").Preload("Opt_house").Find(&borrower)
 	return borrower
 }
