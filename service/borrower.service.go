@@ -54,6 +54,7 @@ func GetCurrentTime() string {
 }
 
 func (service *borrowerService) CreateIdBorrower() string {
+	
 	rand.Seed(time.Now().UnixNano())
 	id_borrower := "BRW-" + RandomLettersNumbers(8) + "-" + GetCurrentTime()
 	return id_borrower

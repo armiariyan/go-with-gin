@@ -23,10 +23,10 @@ var (
 	lenderService    	service.LenderService         = service.NewLenderService(lenderRepository)
 
 
-	userController controller.UserController = controller.NewUserController(userService, jwtService)
-	authController controller.AuthController = controller.NewAuthController(authService, jwtService)
-	borrowerController controller.BorrowerController = controller.NewBorrowerController(borrowerService, jwtService)
-	lenderController controller.LenderController = controller.NewLenderController(lenderService, jwtService)
+	userController		controller.UserController 	  = controller.NewUserController(userService, jwtService)
+	authController 		controller.AuthController 	  = controller.NewAuthController(authService, jwtService)
+	borrowerController 	controller.BorrowerController = controller.NewBorrowerController(borrowerService, jwtService)
+	lenderController 	controller.LenderController   = controller.NewLenderController(lenderService, jwtService)
 )
 
 func main() {
