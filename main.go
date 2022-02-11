@@ -15,18 +15,20 @@ var (
 	userRepository 		repository.UserRepository 	  = repository.NewUserRepository(db)
 	borrowerRepository  repository.BorrowerRepository = repository.NewBorrowerRepository(db)
 	lenderRepository  	repository.LenderRepository	  = repository.NewLenderRepository(db)
+	requestLoanRepository  	repository.RequestLoanRepository	  = repository.NewRequestLoanRepository(db)
 	
 	jwtService     		service.JWTService        	  = service.NewJWTService()
 	userService    		service.UserService       	  = service.NewUserService(userRepository)
 	authService    		service.AuthService       	  = service.NewAuthService(userRepository)
 	borrowerService    	service.BorrowerService       = service.NewBorrowerService(borrowerRepository)
 	lenderService    	service.LenderService         = service.NewLenderService(lenderRepository)
-
+	requestLoanService  service.RequestLoanService    = service.NewRequestLoanService(requestLoanRepository)
 
 	userController		controller.UserController 	  = controller.NewUserController(userService, jwtService)
 	authController 		controller.AuthController 	  = controller.NewAuthController(authService, jwtService)
 	borrowerController 	controller.BorrowerController = controller.NewBorrowerController(borrowerService, jwtService)
 	lenderController 	controller.LenderController   = controller.NewLenderController(lenderService, jwtService)
+	requestLoanController controller.RequestLoanController = controller.NewRequestLoanController(requestLoanService, jwtService)
 )
 
 func main() {
@@ -62,6 +64,13 @@ func main() {
 		lenderRoutes.DELETE("/:id", lenderController.Delete)
 	}
 	
+	requestLoanRoutes := r.Group("api/request-loan")
+	{
+		requestLoanRoutes.GET("/", requestLoanController.All)
+		requestLoanRoutes.POST("/", requestLoanController.Insert)
+		requestLoanRoutes.PUT("/:id", requestLoanController.Update)
+		requestLoanRoutes.DELETE("/:id", requestLoanController.Delete)
+	}
 
 	r.Run()
 }

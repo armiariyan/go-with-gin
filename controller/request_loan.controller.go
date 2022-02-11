@@ -1,12 +1,8 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"gitlab.com/armiariyan/intern_golang/dto"
 	"gitlab.com/armiariyan/intern_golang/entity"
@@ -41,7 +37,7 @@ func (c *requestLoanController) Insert(context *gin.Context) {
 	authHeader := context.GetHeader("Authorization")
 
 	// Validate token
-	token, errToken := c.jwtService.ValidateToken(authHeader)
+	_, errToken := c.jwtService.ValidateToken(authHeader)
 	if errToken != nil {
 		response := helper.BuildErrorResponse("Token Error!", errToken.Error(), helper.EmptyObj{})
 		context.JSON(http.StatusConflict, response)
@@ -53,37 +49,28 @@ func (c *requestLoanController) Insert(context *gin.Context) {
 	// Fill registerDTO variable
 	errDTO := context.ShouldBind(&requestLoanDTO)
 	if errDTO != nil {
-	response := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
-	context.AbortWithStatusJSON(http.StatusBadRequest, response)
-	return
-	}
-
-	// Make the string input Capitallize
-	requestLoanDTO.Sumber_dana =  strings.Title(requestLoanDTO.Sumber_dana)
-
-	// Validate Sumber Dana value
-	if requestLoanDTO.Sumber_dana != "Dalam Negeri" && requestLoanDTO.Sumber_dana != "Luar Negeri" {
-		response := helper.BuildErrorResponse("Failed to process request", "Sumber_dana should be Dalam Negeri or Luar Negeri", helper.EmptyObj{})
+		response := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
 		context.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
-	// Get ID User from Token JWT
-	claims := token.Claims.(jwt.MapClaims)
-	fmt.Println("claims=",claims)
-	
-	id_user, err := strconv.ParseInt(fmt.Sprintf("%v", claims["user_id"]), 10, 64)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// Assign ID user
-	requestLoanDTO.Id_user = id_user
-	
-
 	// Create Id_RequestLoan
 	id_requestLoan := c.requestLoanService.CreateIdRequestLoan()
-	requestLoanDTO.Id_requestLoan = id_requestLoan
+	requestLoanDTO.Id_loan = id_requestLoan
+
+	// Validate loan_duration cannot be 0
+	if requestLoanDTO.Loan_duration == 0 {
+		response := helper.BuildErrorResponse("Failed to process request", "Loan_duration cannot be 0", helper.EmptyObj{})
+		context.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+
+	// Validate loan_amount min 50.000
+	if requestLoanDTO.Loan_amount < 50000 {
+		response := helper.BuildErrorResponse("Failed to process request", "Loan_amount minimum is 50000", helper.EmptyObj{})
+		context.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
 	
 	// Insert data
 	createdRequestLoan := c.requestLoanService.CreateRequestLoan(requestLoanDTO)
@@ -95,7 +82,7 @@ func (c *requestLoanController) Insert(context *gin.Context) {
 }
 
 func (c *requestLoanController) All(context *gin.Context) {
-	var requestLoans []entity.RequestLoan = c.requestLoanService.All()
+	var requestLoans []entity.Request_loan = c.requestLoanService.All()
 	res := helper.BuildResponse(true, "OK", requestLoans)
 	context.JSON(http.StatusOK, res)
 }
@@ -111,7 +98,7 @@ func (c *requestLoanController) Update(context *gin.Context) {
 	authHeader := context.GetHeader("Authorization")
 	
 	// Validate token
-	token, errToken := c.jwtService.ValidateToken(authHeader)
+	_, errToken := c.jwtService.ValidateToken(authHeader)
 	if errToken != nil {
 		response := helper.BuildErrorResponse("Token Error!", errToken.Error(), helper.EmptyObj{})
 		context.JSON(http.StatusConflict, response)
@@ -125,43 +112,31 @@ func (c *requestLoanController) Update(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, res)
 		return
 	}
-	// Make the string input Capitallize
-	requestLoanUpdateDTO.Sumber_dana =  strings.Title(requestLoanUpdateDTO.Sumber_dana)
-
-	// Validate Sumber Dana value
-	if requestLoanUpdateDTO.Sumber_dana != "Dalam Negeri" && requestLoanUpdateDTO.Sumber_dana != "Luar Negeri" {
-		response := helper.BuildErrorResponse("Failed to process request", "Sumber_dana should be Dalam Negeri or Luar Negeri", helper.EmptyObj{})
-		context.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
-
 	// Take id from url parameter and convert the data type from string to int
 	id := context.Param("id")
 	
-
 	// Validate if data exist
 	result_checkId := c.requestLoanService.FindByID(id)
-
-	if (result_checkId == entity.RequestLoan{}) {
+	if (result_checkId == entity.Request_loan{}) {
 		response := helper.BuildErrorResponse("Failed to proccess request", "Record with given ID not found", helper.EmptyObj{})
 		context.JSON(http.StatusNotFound, response)
 		return
 	}
-	
-	requestLoanUpdateDTO.Id_requestLoan = id
+	requestLoanUpdateDTO.Id_loan = id
 
-
-	// Get ID User from Token JWT
-	claims := token.Claims.(jwt.MapClaims)
-	// fmt.Println("claims=",claims)
-	
-	id_user, err := strconv.ParseInt(fmt.Sprintf("%v", claims["user_id"]), 10, 64)
-	if err != nil {
-		panic(err.Error())
+	// Validate loan_duration cannot be 0
+	if requestLoanUpdateDTO.Loan_duration == 0 {
+		response := helper.BuildErrorResponse("Failed to process request", "Loan_duration cannot be 0", helper.EmptyObj{})
+		context.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
 	}
 
-	// Assign ID user
-	requestLoanUpdateDTO.Id_user = id_user
+	// Validate loan_amount min 50.000
+	if requestLoanUpdateDTO.Loan_amount < 50000 {
+		response := helper.BuildErrorResponse("Failed to process request", "Loan_amount minimum is 50000", helper.EmptyObj{})
+		context.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
 
 	result := c.requestLoanService.Update(requestLoanUpdateDTO)
 	response := helper.BuildResponse(true, "OK", result)
@@ -186,13 +161,13 @@ func (c *requestLoanController) Delete(context *gin.Context) {
 	// Validate if data exist and declare variable with entity type, because the delete service parameter is entity type
 	result_checkId := c.requestLoanService.FindByID(id)
 
-	if (result_checkId == entity.RequestLoan{}) {
+	if (result_checkId == entity.Request_loan{}) {
 		response := helper.BuildErrorResponse("Failed to proccess request", "Record with given ID not found", helper.EmptyObj{})
 		context.JSON(http.StatusNotFound, response)
 		return
 	}
 	
-	result_checkId.Id_requestLoan = id
+	result_checkId.Id_loan = id
 	c.requestLoanService.Delete(result_checkId)
 	res := helper.BuildResponse(true, "Deleted", helper.EmptyObj{})
 	context.JSON(http.StatusOK, res)
