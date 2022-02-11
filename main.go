@@ -16,6 +16,7 @@ var (
 	borrowerRepository  repository.BorrowerRepository = repository.NewBorrowerRepository(db)
 	lenderRepository  	repository.LenderRepository	  = repository.NewLenderRepository(db)
 	requestLoanRepository  	repository.RequestLoanRepository	  = repository.NewRequestLoanRepository(db)
+	transactionRepository  	repository.TransactionRepository	  = repository.NewTransactionRepository(db)
 	
 	jwtService     		service.JWTService        	  = service.NewJWTService()
 	userService    		service.UserService       	  = service.NewUserService(userRepository)
@@ -23,12 +24,14 @@ var (
 	borrowerService    	service.BorrowerService       = service.NewBorrowerService(borrowerRepository)
 	lenderService    	service.LenderService         = service.NewLenderService(lenderRepository)
 	requestLoanService  service.RequestLoanService    = service.NewRequestLoanService(requestLoanRepository)
+	transactionService  service.TransactionService    = service.NewTransactionService(transactionRepository)
 
 	userController		controller.UserController 	  = controller.NewUserController(userService, jwtService)
 	authController 		controller.AuthController 	  = controller.NewAuthController(authService, jwtService)
 	borrowerController 	controller.BorrowerController = controller.NewBorrowerController(borrowerService, jwtService)
 	lenderController 	controller.LenderController   = controller.NewLenderController(lenderService, jwtService)
 	requestLoanController controller.RequestLoanController = controller.NewRequestLoanController(requestLoanService, jwtService)
+	transactionController controller.TransactionController = controller.NewTransactionController(transactionService, jwtService)
 )
 
 func main() {
@@ -70,6 +73,14 @@ func main() {
 		requestLoanRoutes.POST("/", requestLoanController.Insert)
 		requestLoanRoutes.PUT("/:id", requestLoanController.Update)
 		requestLoanRoutes.DELETE("/:id", requestLoanController.Delete)
+	}
+
+	transactionRoutes := r.Group("api/transaction")
+	{
+		transactionRoutes.GET("/", transactionController.All)
+		transactionRoutes.POST("/", transactionController.Insert)
+		transactionRoutes.PUT("/:id", transactionController.Update)
+		transactionRoutes.DELETE("/:id", transactionController.Delete)
 	}
 
 	r.Run()
