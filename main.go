@@ -11,13 +11,15 @@ import (
 )
 
 var (
-	db             		*gorm.DB                  	  = config.SetupDatabaseConnection()
-	userRepository 		repository.UserRepository 	  = repository.NewUserRepository(db)
-	borrowerRepository  repository.BorrowerRepository = repository.NewBorrowerRepository(db)
-	lenderRepository  	repository.LenderRepository	  = repository.NewLenderRepository(db)
+	db             			*gorm.DB                  	  = config.SetupDatabaseConnection()
+	userRepository 			repository.UserRepository 	  = repository.NewUserRepository(db)
+	borrowerRepository	  	repository.BorrowerRepository = repository.NewBorrowerRepository(db)
+	lenderRepository  		repository.LenderRepository	  = repository.NewLenderRepository(db)
 	requestLoanRepository  	repository.RequestLoanRepository	  = repository.NewRequestLoanRepository(db)
 	transactionRepository  	repository.TransactionRepository	  = repository.NewTransactionRepository(db)
+	loanPaymentRepository  	repository.Loan_paymentRepository	  = repository.NewLoan_paymentRepository(db)
 	
+
 	jwtService     		service.JWTService        	  = service.NewJWTService()
 	userService    		service.UserService       	  = service.NewUserService(userRepository)
 	authService    		service.AuthService       	  = service.NewAuthService(userRepository)
@@ -25,6 +27,7 @@ var (
 	lenderService    	service.LenderService         = service.NewLenderService(lenderRepository)
 	requestLoanService  service.RequestLoanService    = service.NewRequestLoanService(requestLoanRepository)
 	transactionService  service.TransactionService    = service.NewTransactionService(transactionRepository)
+	loanPaymentService  service.Loan_paymentService   = service.NewLoan_paymentService(loanPaymentRepository)
 
 	userController		controller.UserController 	  = controller.NewUserController(userService, jwtService)
 	authController 		controller.AuthController 	  = controller.NewAuthController(authService, jwtService)
@@ -32,6 +35,7 @@ var (
 	lenderController 	controller.LenderController   = controller.NewLenderController(lenderService, jwtService)
 	requestLoanController controller.RequestLoanController = controller.NewRequestLoanController(requestLoanService, jwtService)
 	transactionController controller.TransactionController = controller.NewTransactionController(transactionService, jwtService)
+	loanPaymentController controller.Loan_paymentController = controller.NewLoan_paymentController(loanPaymentService, jwtService)
 )
 
 func main() {
@@ -81,6 +85,14 @@ func main() {
 		transactionRoutes.POST("/", transactionController.Insert)
 		transactionRoutes.PUT("/:id", transactionController.Update)
 		transactionRoutes.DELETE("/:id", transactionController.Delete)
+	}
+
+	loanPaymentRoutes := r.Group("api/loan-payment")
+	{
+		loanPaymentRoutes.GET("/", loanPaymentController.All)
+		loanPaymentRoutes.POST("/", loanPaymentController.Insert)
+		loanPaymentRoutes.PUT("/:id", loanPaymentController.Update)
+		loanPaymentRoutes.DELETE("/:id", loanPaymentController.Delete)
 	}
 
 	r.Run()
