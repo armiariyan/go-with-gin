@@ -23,7 +23,7 @@ type loanController struct {
 	jwtService  service.JWTService
 }
 
-//NewAuthController creates a new instance of AuthController
+//NewLoanController creates a new instance of LoanController
 func NewLoanController(loanService service.LoanService, jwtService service.JWTService) LoanController {
 	return &loanController{
 		loanService: loanService,
@@ -53,10 +53,13 @@ func (c *loanController) Insert(context *gin.Context) {
 		context.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-
-	// Create Id_Loan
-	id_loan := c.loanService.CreateIdLoan()
-	loanDTO.Id_payment = id_loan
+	
+	// Validate confirmed amount shouldnt higher than loan_amount
+	if loanDTO.Confirmed_amount > loanDTO.Loan_amount {
+		response := helper.BuildErrorResponse("Failed to process request", "confirmed amount shouldnt higher than loan_amount", helper.EmptyObj{})
+		context.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
 
 	createdLoan := c.loanService.CreateLoan(loanDTO)
 
@@ -104,7 +107,7 @@ func (c *loanController) Update(context *gin.Context) {
 		return
 	}
 
-	loanUpdateDTO.Id_payment = id
+	loanUpdateDTO.Id_loan = id
 
 	result := c.loanService.Update(loanUpdateDTO)
 	response := helper.BuildResponse(true, "OK", result)
@@ -137,7 +140,7 @@ func (c *loanController) Delete(context *gin.Context) {
 		return
 	}
 	
-	result_checkId.Id_payment = id
+	result_checkId.Id_loan = id
 	c.loanService.Delete(result_checkId)
 	res := helper.BuildResponse(true, "Deleted", helper.EmptyObj{})
 	context.JSON(http.StatusOK, res)

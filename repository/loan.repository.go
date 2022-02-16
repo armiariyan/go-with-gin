@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"gitlab.com/armiariyan/intern_golang/entity"
 	"gorm.io/gorm"
 )
@@ -27,25 +29,26 @@ func NewLoanRepository(db *gorm.DB) LoanRepository {
 
 func (db *loanConnection) AllLoans() []entity.Loan {
 	var loans []entity.Loan
-	db.connection.Find(&loans)
+	db.connection.Preload("Opt_status").Find(&loans)
 	return loans
 }
 
 func (db *loanConnection) InsertLoan(loan entity.Loan) entity.Loan {
 	db.connection.Create(&loan)
-	db.connection.Find(&loan)
+	db.connection.Preload("Opt_status").Find(&loan)
 	return loan
 }
 
 func (db *loanConnection) FindLoanId(loanID string) entity.Loan {
 	var loan entity.Loan
+	fmt.Println("id_loan", loanID)
 	db.connection.First(&loan, "id_loan = ?", loanID)
 	return loan
 }
 
 func (db *loanConnection) UpdateLoan(loan entity.Loan) entity.Loan {
 	db.connection.Updates(&loan)
-	db.connection.Find(&loan)
+	db.connection.Preload("Opt_status").Find(&loan)
 	return loan
 }
 
