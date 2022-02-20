@@ -35,6 +35,7 @@ func (db *loanConnection) AllLoans() []entity.Loan {
 
 func (db *loanConnection) InsertLoan(loan entity.Loan) entity.Loan {
 	db.connection.Create(&loan)
+	fmt.Println(loan)
 	db.connection.Preload("Opt_status").Find(&loan)
 	return loan
 }

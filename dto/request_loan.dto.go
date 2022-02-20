@@ -2,6 +2,7 @@ package dto
 
 //RequestLoanUpdateDTO is used by client when PUT update lender data
 type RequestLoanUpdateDTO struct {
+	ID         		   	  int64  `json:"id" form:"id"`
 	Id_loan               string `json:"id_loan" form:"id_loan"`
 	Id_borrower           string  `json:"id_borrower" form:"id_borrower"`
 	Loan_name             string `json:"loan_name" form:"loan_name" binding:"required"`

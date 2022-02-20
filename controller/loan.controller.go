@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gitlab.com/armiariyan/intern_golang/dto"
@@ -53,7 +54,9 @@ func (c *loanController) Insert(context *gin.Context) {
 		context.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	
+
+	loanDTO.Deal_date = time.Now()
+
 	// Validate confirmed amount shouldnt higher than loan_amount
 	if loanDTO.Confirmed_amount > loanDTO.Loan_amount {
 		response := helper.BuildErrorResponse("Failed to process request", "confirmed amount shouldnt higher than loan_amount", helper.EmptyObj{})

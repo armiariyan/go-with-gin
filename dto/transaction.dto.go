@@ -6,6 +6,7 @@ import (
 
 //TransactionUpdateDTO is used by client when PUT update transaction data
 type TransactionUpdateDTO struct {
+	ID         			  int64			    	`json:"id" form:"id"`
 	Id_transaction        string                `json:"id_transaction" form:"id_transaction" binding:"required"`
 	Id_borrower           string                `json:"id_borrower" form:"id_borrower" binding:"required"`
 	Id_lender             string                `json:"id_lender" form:"id_lender" binding:"required"`

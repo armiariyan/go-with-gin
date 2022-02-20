@@ -6,7 +6,8 @@ import (
 
 
 type Transaction struct {
-	Id_transaction        string                `gorm:"primary_key;type:varchar(255)" json:"id_transaction"`
+	ID          		  int64 			    `gorm:"primary_key:auto_increment" json:"id"`
+	Id_transaction        string                `gorm:"type:varchar(255)" json:"id_transaction"`
 	Id_borrower           string                `gorm:"type:varchar(255)" json:"id_borrower"`
 	Id_lender             string                `gorm:"type:varchar(255)" json:"id_lender"`
 	Lend_number           int64                 `json:"lend_number"`

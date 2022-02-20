@@ -1,7 +1,8 @@
 package entity
 
 type Request_loan struct {
-	Id_loan               string                `gorm:"primary_key;type:varchar(255)" json:"id_loan"`
+	ID                    int64                 `gorm:"primary_key:auto_increment" json:"id"`
+	Id_loan               string                `gorm:"type:varchar(255)" json:"id_loan"`
 	Id_borrower           string                `gorm:"type:varchar(255)" json:"id_borrower"`
 	Loan_name             string                `gorm:"type:varchar(255)" json:"loan_name"`
 	Loan_amount           int64                 `json:"loan_amount"`

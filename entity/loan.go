@@ -3,7 +3,8 @@ package entity
 import "time"
 
 type Loan struct {
-	Id_loan     	 string    	 `gorm:"primary_key;type:varchar(255)" json:"id_loan"`
+	ID               int64 	    `gorm:"primary_key:auto_increment" json:"id"`
+	Id_loan     	 string    	 `gorm:"type:varchar(255)" json:"id_loan"`
 	Id_lender   	 string    	 `gorm:"type:varchar(255)" json:"id_lender"`
 	Id_borrower 	 string		 `gorm:"type:varchar(255)" json:"id_borrower"`
 	Deal_date   	 time.Time 	 `json:"deal_date"`
