@@ -1,112 +1,69 @@
 package service
 
 import (
-	"intern_golang/repo"
-	"intern_golang/user"
+	"log"
+
+	"github.com/mashingan/smapping"
+	"gitlab.com/armiariyan/intern_golang/dto"
+	"gitlab.com/armiariyan/intern_golang/entity"
+	"gitlab.com/armiariyan/intern_golang/repository"
 )
 
+//UserService is a contract.....
 type UserService interface {
-	All(userID string) (*[]user.UserResponse, error)
-	// CreateProduct(productRequest dto.CreateProductRequest, userID string) (*_product.ProductResponse, error)
-	// UpdateProduct(updateProductRequest dto.UpdateProductRequest, userID string) (*_product.ProductResponse, error)
-	// FindOneProductByID(productID string) (*_product.ProductResponse, error)
-	// DeleteProduct(productID string, userID string) error
+	All() []entity.User
+	Delete(user entity.User)
+	Update(u dto.UserUpdateDTO) entity.User
+	// Profile(userID string) entity.User
+	FindByID(userID int64) entity.User
+	// IsDuplicateEmail(email string) bool
 }
 
 type userService struct {
-	userRepo repo.UserRepository
+	userRepository repository.UserRepository
 }
 
-func NewUserService(userRepo repo.UserRepository) UserService {
+//NewUserService creates a new instance of UserService
+func NewUserService(userRepo repository.UserRepository) UserService {
 	return &userService{
-		userRepo: userRepo,
+		userRepository: userRepo,
 	}
 }
 
-func (c *userService) All(userID string) (*[]user.UserResponse, error) {
-	users, err := c.userRepo.All(userID)
+
+func (service *userService) All() []entity.User {
+	return service.userRepository.AllUser()
+}
+
+func (service *userService) Delete(user entity.User) {
+	service.userRepository.DeleteUser(user)
+}
+
+func (service *userService) FindByID(userID int64) entity.User {
+	return service.userRepository.FindUserID(userID)
+}
+
+func (service *userService) Update(user dto.UserUpdateDTO) entity.User {
+	userToUpdate := entity.User{}
+	// Fill the variable
+	err := smapping.FillStruct(&userToUpdate, smapping.MapFields(&user))
 	if err != nil {
-		return nil, err
+		log.Fatalf("Failed map %v:", err)
 	}
-	user := user.NewUserResponse(users)
-	return &user, nil
 
-
-	// prods := _product.NewProductArrayResponse(products)
-	// return &prods, nil
+	// Update the variable
+	updatedUser := service.userRepository.UpdateUser(userToUpdate)
+	return updatedUser
 }
 
-// func (c *productService) CreateProduct(productRequest dto.CreateProductRequest, userID string) (*_product.ProductResponse, error) {
-// 	product := entity.Product{}
-// 	err := smapping.FillStruct(&product, smapping.MapFields(&productRequest))
-
-// 	if err != nil {
-// 		log.Fatalf("Failed map %v", err)
-// 		return nil, err
-// 	}
-
-// 	id, _ := strconv.ParseInt(userID, 0, 64)
-// 	product.UserID = id
-// 	p, err := c.productRepo.InsertProduct(product)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	res := _product.NewProductResponse(p)
-// 	return &res, nil
+// func (service *userService) IsDuplicateEmail(email string) bool {
+// 	fmt.Println("email in user service", email)
+// 	fmt.Println("=================")
+// 	res := service.userRepository.IsDuplicateEmail(email)
+// 	return !(res.Error == nil)
 // }
 
-// func (c *productService) FindOneProductByID(productID string) (*_product.ProductResponse, error) {
-// 	product, err := c.productRepo.FindOneProductByID(productID)
 
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	res := _product.NewProductResponse(product)
-// 	return &res, nil
-// }
-
-// func (c *productService) UpdateProduct(updateProductRequest dto.UpdateProductRequest, userID string) (*_product.ProductResponse, error) {
-// 	product, err := c.productRepo.FindOneProductByID(fmt.Sprintf("%d", updateProductRequest.ID))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	uid, _ := strconv.ParseInt(userID, 0, 64)
-// 	if product.UserID != uid {
-// 		return nil, errors.New("produk ini bukan milik anda")
-// 	}
-
-// 	product = entity.Product{}
-// 	err = smapping.FillStruct(&product, smapping.MapFields(&updateProductRequest))
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	product.UserID = uid
-// 	product, err = c.productRepo.UpdateProduct(product)
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	res := _product.NewProductResponse(product)
-// 	return &res, nil
-// }
-
-// func (c *productService) DeleteProduct(productID string, userID string) error {
-// 	product, err := c.productRepo.FindOneProductByID(productID)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	if fmt.Sprintf("%d", product.UserID) != userID {
-// 		return errors.New("produk ini bukan milik anda")
-// 	}
-
-// 	c.productRepo.DeleteProduct(productID)
-// 	return nil
-
+// func (service *userService) Profile(userID string) entity.User {
+// 	return service.userRepository.ProfileUser(userID)
 // }
